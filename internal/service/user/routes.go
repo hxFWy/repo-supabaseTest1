@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"supabase-testProject1/internal/service/auth"
 	"supabase-testProject1/internal/types"
 	"supabase-testProject1/internal/utils"
@@ -33,17 +34,27 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fetchedUser, err := h.repository.GetUserByUsername(payload.Username)
+
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with username %s not found - invalid username or password", payload.Username))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with username %s not found - invalid username", payload.Username))
 		return
 	}
 
 	if !auth.ComparePasswords(fetchedUser.Password, []byte(payload.Password)) {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with username %s not found - invalid username or password", payload.Username))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with username %s not found - invalid password", payload.Username))
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": ""})
+	fmt.Println(fetchedUser)
+
+	secret := []byte(os.Getenv("jwt_secret"))
+	token, err := auth.CreateJWT(secret, fetchedUser.Id)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to create JWT token"))
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {

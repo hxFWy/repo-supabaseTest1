@@ -17,10 +17,15 @@ func NewRepository(db *sql.DB) *Repository {
 		db: db,
 	}
 }
+
 func (r *Repository) GetUserByUsername(username string) (*types.User, error) {
 
 	var fetchedUser types.User
-	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM users WHERE username = $1", username).Scan(&fetchedUser)
+	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM public.users WHERE username = $1", username).
+		Scan(&fetchedUser.Id,
+			&fetchedUser.Created_at,
+			&fetchedUser.Username,
+			&fetchedUser.Password)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user with username: %s - %v", username, err)
@@ -32,7 +37,7 @@ func (r *Repository) GetUserByUsername(username string) (*types.User, error) {
 func (r *Repository) GetUserById(id int) (*types.User, error) {
 
 	var fetchedUser types.User
-	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM users WHERE id = $1", id).Scan(&fetchedUser)
+	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM public.users WHERE id = $1", id).Scan(&fetchedUser)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user with id: %d - %v", id, err)
@@ -42,7 +47,7 @@ func (r *Repository) GetUserById(id int) (*types.User, error) {
 }
 
 func (r *Repository) CreateUser(payload types.RegisterUserPayload) error {
-	err := r.db.QueryRowContext(context.Background(), "INSERT INTO users (username, password) VALUES ($1, $2)",
+	err := r.db.QueryRowContext(context.Background(), "INSERT INTO public.users (username, password) VALUES ($1, $2)",
 		payload.Username, payload.Password)
 	if err != nil {
 		return err.Err()
