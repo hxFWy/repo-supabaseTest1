@@ -1,6 +1,11 @@
 package player
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"supabase-testProject1/internal/types"
+)
 
 type Repository struct {
 	db *sql.DB
@@ -10,4 +15,33 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		db: db,
 	}
+}
+
+func (r *Repository) GetPlayerByUserId(id int) (*types.Player, error) {
+
+	var fetchedPlayer types.Player
+
+	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM public.players WHERE user_id = $1", id).
+		Scan(&fetchedPlayer.User_id,
+			&fetchedPlayer.Money,
+			&fetchedPlayer.Position,
+			&fetchedPlayer.Stamina,
+			&fetchedPlayer.Skill,
+			&fetchedPlayer.Created_at)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch player by user id: %d - %v", id, err)
+	}
+
+	return &fetchedPlayer, nil
+}
+
+func (r *Repository) CreatePlayer(payload types.CreatePlayerPayload) error {
+	err := r.db.QueryRowContext(context.Background(), "INSERT INTO public.players (user_id, position) VALUES ($1, $2)",
+		payload.User_id, payload.Position)
+
+	if err != nil {
+		return err.Err()
+	}
+	return nil
 }

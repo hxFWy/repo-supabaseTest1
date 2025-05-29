@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS public.players (
   money        DOUBLE PRECISION   NOT NULL DEFAULT 0,
   position     VARCHAR            NOT NULL,
   stamina      INT                NOT NULL DEFAULT 100,
-  skill        INT                NOT NULL,
+  skill        INT                NOT NULL DEFAULT 0,
   created_at   TIMESTAMPTZ        NOT NULL DEFAULT now()
 );
