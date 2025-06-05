@@ -39,7 +39,7 @@ type Player struct {
 type UserRepository interface {
 	GetUserByUsername(username string) (*User, error)
 	GetUserById(id int) (*User, error)
-	CreateUser(RegisterUserPayload) error
+	CreateUser(RegisterUserPayload) (*User, error)
 }
 
 type PlayerRepository interface {

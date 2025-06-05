@@ -83,7 +83,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if it doesnt we create the new user
-	err = h.repository.CreateUser(types.RegisterUserPayload{
+	_, err = h.repository.CreateUser(types.RegisterUserPayload{
 		Username: payload.Username,
 		Password: hashedPassword,
 		Position: payload.Position,

@@ -36,7 +36,6 @@ func (r *Repository) GetUserByUsername(username string) (*types.User, error) {
 
 func (r *Repository) GetUserById(id int) (*types.User, error) {
 
-
 	var fetchedUser types.User
 	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM public.users WHERE id = $1", id).
 		Scan(&fetchedUser.Id,
@@ -51,11 +50,22 @@ func (r *Repository) GetUserById(id int) (*types.User, error) {
 	return &fetchedUser, nil
 }
 
-func (r *Repository) CreateUser(payload types.RegisterUserPayload) error {
-	err := r.db.QueryRowContext(context.Background(), "INSERT INTO public.users (username, password) VALUES ($1, $2)",
-		payload.Username, payload.Password)
+func (r *Repository) CreateUser(payload types.RegisterUserPayload) (*types.User, error) {
+
+	var newUser types.User
+
+	err := r.db.QueryRowContext(context.Background(), `INSERT INTO public.users (username, password)
+														VALUES ($1, $2)
+														RETURNING id, created_at, username, password`,
+
+		payload.Username, payload.Password).Scan(
+		&newUser.Id,
+		&newUser.Created_at,
+		&newUser.Username,
+	)
+
 	if err != nil {
-		return err.Err()
+		return nil, err
 	}
-	return nil
+	return &newUser, nil
 }
