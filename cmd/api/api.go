@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"supabase-testProject1/internal/service/player"
+	"supabase-testProject1/internal/service/training"
 	"supabase-testProject1/internal/service/user"
 
 	"github.com/gorilla/mux"
@@ -33,6 +34,10 @@ func (s *APIServer) Run() error {
 	playerRepository := player.NewRepository(s.db)
 	playerHandler := player.NewHandler(playerRepository)
 	playerHandler.RegisterRoutes(subrouter)
+
+	trainingRepository := training.NewRepository(s.db)
+	trainingHandler := training.NewHandler(trainingRepository, userRepository)
+	trainingHandler.RegisterRoutes(subrouter)
 
 	log.Println("[INFO] Listening on", s.addr)
 

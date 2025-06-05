@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type RegisterUserPayload struct {
 	Username string `json:"username"`
@@ -36,10 +38,15 @@ type Player struct {
 
 type UserRepository interface {
 	GetUserByUsername(username string) (*User, error)
+	GetUserById(id int) (*User, error)
 	CreateUser(RegisterUserPayload) error
 }
 
 type PlayerRepository interface {
 	GetPlayerByUserId(id int) (*Player, error)
 	CreatePlayer(CreatePlayerPayload) error
+}
+
+type TrainingRepository interface {
+	TrainPlayerById(user_id int) error
 }

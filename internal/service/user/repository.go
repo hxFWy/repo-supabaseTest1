@@ -36,8 +36,13 @@ func (r *Repository) GetUserByUsername(username string) (*types.User, error) {
 
 func (r *Repository) GetUserById(id int) (*types.User, error) {
 
+
 	var fetchedUser types.User
-	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM public.users WHERE id = $1", id).Scan(&fetchedUser)
+	err := r.db.QueryRowContext(context.Background(), "SELECT * FROM public.users WHERE id = $1", id).
+		Scan(&fetchedUser.Id,
+			&fetchedUser.Created_at,
+			&fetchedUser.Username,
+			&fetchedUser.Password)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user with id: %d - %v", id, err)
