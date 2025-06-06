@@ -1,6 +1,8 @@
 package types
 
 import (
+	"context"
+	"database/sql"
 	"time"
 )
 
@@ -39,12 +41,12 @@ type Player struct {
 type UserRepository interface {
 	GetUserByUsername(username string) (*User, error)
 	GetUserById(id int) (*User, error)
-	CreateUser(RegisterUserPayload) (*User, error)
+	CreateUserTx(ctx context.Context, tx *sql.Tx, payload RegisterUserPayload) (*User, error)
 }
 
 type PlayerRepository interface {
 	GetPlayerByUserId(id int) (*Player, error)
-	CreatePlayer(CreatePlayerPayload) error
+	CreatePlayerTx(ctx context.Context, tx *sql.Tx, payload CreatePlayerPayload) error
 }
 
 type TrainingRepository interface {

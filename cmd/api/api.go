@@ -27,13 +27,14 @@ func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
-	userRepository := user.NewRepository(s.db)
-	userHandler := user.NewHandler(userRepository)
-	userHandler.RegisterRoutes(subrouter)
-
 	playerRepository := player.NewRepository(s.db)
 	playerHandler := player.NewHandler(playerRepository)
 	playerHandler.RegisterRoutes(subrouter)
+
+	userRepository := user.NewRepository(s.db)
+	userService := user.NewUserService(s.db, userRepository, playerRepository)
+	userHandler := user.NewHandler(userService)
+	userHandler.RegisterRoutes(subrouter)
 
 	trainingRepository := training.NewRepository(s.db)
 	trainingHandler := training.NewHandler(trainingRepository, userRepository)

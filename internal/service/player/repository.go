@@ -36,8 +36,8 @@ func (r *Repository) GetPlayerByUserId(id int) (*types.Player, error) {
 	return &fetchedPlayer, nil
 }
 
-func (r *Repository) CreatePlayer(payload types.CreatePlayerPayload) error {
-	err := r.db.QueryRowContext(context.Background(), "INSERT INTO public.players (user_id, position) VALUES ($1, $2)",
+func (r *Repository) CreatePlayerTx(ctx context.Context, tx *sql.Tx, payload types.CreatePlayerPayload) error {
+	err := tx.QueryRowContext(ctx, "INSERT INTO public.players (user_id, position) VALUES ($1, $2)",
 		payload.User_id, payload.Position)
 
 	if err != nil {

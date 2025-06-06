@@ -53,7 +53,7 @@ func (h *Handler) handleCreatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.repository.CreatePlayer(payload)
+	//err = h.repository.CreatePlayer(payload)
 
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("user creation failed: %v", err))

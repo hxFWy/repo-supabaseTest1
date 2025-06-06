@@ -50,13 +50,13 @@ func (r *Repository) GetUserById(id int) (*types.User, error) {
 	return &fetchedUser, nil
 }
 
-func (r *Repository) CreateUser(payload types.RegisterUserPayload) (*types.User, error) {
+func (r *Repository) CreateUserTx(ctx context.Context, tx *sql.Tx, payload types.RegisterUserPayload) (*types.User, error) {
 
 	var newUser types.User
 
-	err := r.db.QueryRowContext(context.Background(), `INSERT INTO public.users (username, password)
+	err := tx.QueryRowContext(ctx, `INSERT INTO public.users (username, password)
 														VALUES ($1, $2)
-														RETURNING id, created_at, username, password`,
+														RETURNING id, created_at, username`,
 
 		payload.Username, payload.Password).Scan(
 		&newUser.Id,
