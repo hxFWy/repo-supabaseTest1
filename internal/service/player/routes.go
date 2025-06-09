@@ -3,6 +3,7 @@ package player
 import (
 	"fmt"
 	"net/http"
+	"supabase-testProject1/internal/service/auth"
 	"supabase-testProject1/internal/types"
 	"supabase-testProject1/internal/utils"
 
@@ -25,7 +26,10 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleGetPlayer(w http.ResponseWriter, r *http.Request) {
-	player, err := h.repository.GetPlayerByUserId(1)
+
+	userID := auth.GetUserIDFromContext(r.Context())
+
+	player, err := h.repository.GetPlayerByUserId(userID)
 
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
