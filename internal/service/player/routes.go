@@ -11,23 +11,27 @@ import (
 )
 
 type Handler struct {
-	repository types.PlayerRepository
+	repository     types.PlayerRepository
+	userRepository types.UserRepository
 }
 
-func NewHandler(repository types.PlayerRepository) *Handler {
+func NewHandler(repository types.PlayerRepository, userRepository types.UserRepository) *Handler {
 	return &Handler{
 		repository: repository,
+		userRepository: userRepository,
 	}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/players", h.handleGetPlayer).Methods(http.MethodGet)
+	router.HandleFunc("/players", auth.WithJWTAuth(h.handleGetPlayer, h.userRepository)).Methods(http.MethodGet)
 	router.HandleFunc("/players", h.handleCreatePlayer).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetPlayer(w http.ResponseWriter, r *http.Request) {
 
 	userID := auth.GetUserIDFromContext(r.Context())
+
+	fmt.Println(userID)
 
 	player, err := h.repository.GetPlayerByUserId(userID)
 
