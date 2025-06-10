@@ -17,7 +17,7 @@ type Handler struct {
 
 func NewHandler(repository types.PlayerRepository, userRepository types.UserRepository) *Handler {
 	return &Handler{
-		repository: repository,
+		repository:     repository,
 		userRepository: userRepository,
 	}
 }
@@ -30,8 +30,6 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 func (h *Handler) handleGetPlayer(w http.ResponseWriter, r *http.Request) {
 
 	userID := auth.GetUserIDFromContext(r.Context())
-
-	fmt.Println(userID)
 
 	player, err := h.repository.GetPlayerByUserId(userID)
 
