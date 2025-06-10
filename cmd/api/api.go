@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"supabase-testProject1/internal/service/player"
+	"supabase-testProject1/internal/service/shop"
 	"supabase-testProject1/internal/service/training"
 	"supabase-testProject1/internal/service/user"
 
@@ -40,6 +41,9 @@ func (s *APIServer) Run() error {
 	trainingRepository := training.NewRepository(s.db)
 	trainingHandler := training.NewHandler(trainingRepository, userRepository)
 	trainingHandler.RegisterRoutes(subrouter)
+
+	shopHandler := shop.NewHandler()
+	shopHandler.RegisterRoutes(subrouter)
 
 	log.Println("[INFO] Listening on", s.addr)
 
