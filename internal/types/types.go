@@ -38,6 +38,15 @@ type Player struct {
 	Created_at time.Time `json:"created_at"`
 }
 
+type Item struct {
+	Id          int       `json:"id"`
+	Name        string    `json:"name"`
+	Slot        string    `json:"slot"`
+	Cost        int       `json:"cost"`
+	Skill_bonus int       `json:"skill_bonus"`
+	Created_at  time.Time `json:"created_at"`
+}
+
 type UserRepository interface {
 	GetUserByUsername(username string) (*User, error)
 	GetUserById(id int) (*User, error)
@@ -51,4 +60,8 @@ type PlayerRepository interface {
 
 type TrainingRepository interface {
 	TrainPlayerById(user_id int) error
+}
+
+type ShopRepository interface {
+	GetItemsList() []*Item
 }
