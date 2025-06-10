@@ -2,15 +2,19 @@ package shop
 
 import (
 	"net/http"
+	"supabase-testProject1/internal/types"
 
 	"github.com/gorilla/mux"
 )
 
 type Handler struct {
+	repository types.ShopRepository
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(repository types.ShopRepository) *Handler {
+	return &Handler{
+		repository: repository,
+	}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
@@ -18,5 +22,5 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleShopList(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented")
+
 }
