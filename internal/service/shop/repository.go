@@ -1,7 +1,9 @@
 package shop
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"supabase-testProject1/internal/types"
 )
 
@@ -15,17 +17,44 @@ func NewRepository(db *sql.DB) *Repository {
 	}
 }
 
-func (r *Repository) GetItemsList() []*types.Item {
-	newItem := &types.Item{
-		Id:          1,
-		Name:        "test",
-		Slot:        "testslot",
-		Cost:        100000,
-		Skill_bonus: 1000,
+func (r *Repository) GetItemsList(ctx context.Context) ([]*types.Item, error) {
+	items := make([]*types.Item, 0)
+
+	const q = `
+        SELECT
+            id,
+            name,
+            slot,
+            cost,
+            skill_bonus
+        FROM public.items
+    `
+
+	rows, err := r.db.QueryContext(ctx, q)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve the items: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		item := new(types.Item)
+		if err := rows.Scan(
+			&item.Id,
+			&item.Name,
+			&item.Slot,
+			&item.Cost,
+			&item.Skill_bonus,
+		); err != nil {
+			return nil, fmt.Errorf("could not create item object with retrieved data: %w", err)
+		}
+
+		items = append(items, item)
 	}
 
-	items := make([]*types.Item, 0)
-	items = append(items, newItem)
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during row iteration: %w", err)
+	}
 
-	return items
+	return items, nil
 }

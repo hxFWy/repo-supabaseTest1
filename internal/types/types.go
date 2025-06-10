@@ -63,5 +63,5 @@ type TrainingRepository interface {
 }
 
 type ShopRepository interface {
-	GetItemsList() []*Item
+	GetItemsList(ctx context.Context) ([]*Item, error)
 }
