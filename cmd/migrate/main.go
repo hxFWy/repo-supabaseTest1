@@ -1,15 +1,24 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
+	"path"
+	"sort"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
 )
+
+//go:embed seeds/*.sql
+var seedFS embed.FS
 
 func main() {
 
@@ -42,6 +51,8 @@ func main() {
 		if err := m.Up(); err != nil {
 			log.Fatal(err)
 		}
+
+		runSeeds(dsn)
 	}
 
 	if cmd == "down" {
@@ -50,4 +61,40 @@ func main() {
 		}
 	}
 
+}
+
+func runSeeds(dsn string) {
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatal("sql.Open:", err)
+	}
+	defer db.Close()
+
+	entries, err := fs.ReadDir(seedFS, "seeds")
+	if err != nil {
+		log.Fatal("ReadDir seeds:", err)
+	}
+
+	// By mieć deterministyczną kolejność – sortujemy wg nazw plików
+	var names []string
+	for _, e := range entries {
+		if !e.IsDir() && path.Ext(e.Name()) == ".sql" {
+			names = append(names, e.Name())
+		}
+	}
+	sort.Strings(names)
+
+	ctx := context.Background()
+	for _, fname := range names {
+		sqlBytes, err := seedFS.ReadFile("seeds/" + fname)
+		if err != nil {
+			log.Fatalf("ReadFile %s: %v", fname, err)
+		}
+		query := string(sqlBytes)
+		fmt.Printf("[INFO] Seeding %s …\n", fname)
+		if _, err := db.ExecContext(ctx, query); err != nil {
+			log.Fatalf("Exec seed %s: %v", fname, err)
+		}
+	}
+	fmt.Println("[INFO] All seeds applied")
 }
