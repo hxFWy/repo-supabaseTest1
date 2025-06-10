@@ -24,7 +24,7 @@ func (r *Repository) GetItemsList() []*types.Item {
 		Skill_bonus: 1000,
 	}
 
-	items := make([]*types.Item, 1)
+	items := make([]*types.Item, 0)
 	items = append(items, newItem)
 
 	return items

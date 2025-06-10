@@ -1,6 +1,7 @@
 package shop
 
 import (
+	"fmt"
 	"net/http"
 	"supabase-testProject1/internal/types"
 
@@ -23,4 +24,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 
 func (h *Handler) handleShopList(w http.ResponseWriter, r *http.Request) {
 
+	items := h.repository.GetItemsList()
+
+	fmt.Println(items[0].Name)
 }
