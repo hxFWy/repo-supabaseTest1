@@ -43,7 +43,8 @@ func (s *APIServer) Run() error {
 	trainingHandler.RegisterRoutes(subrouter)
 
 	shopRepository := shop.NewRepository(s.db)
-	shopHandler := shop.NewHandler(shopRepository)
+	shopService := shop.NewService(s.db, userRepository, playerRepository, shopRepository)
+	shopHandler := shop.NewHandler(shopRepository, userRepository, shopService)
 	shopHandler.RegisterRoutes(subrouter)
 
 	log.Println("[INFO] Listening on", s.addr)

@@ -58,3 +58,48 @@ func (r *Repository) GetItemsList(ctx context.Context) ([]*types.Item, error) {
 
 	return items, nil
 }
+
+func (r *Repository) GetItemById(ctx context.Context, itemId int) (*types.Item, error) {
+	item := new(types.Item)
+
+	const q = `
+		SELECT
+			id,
+			name,
+			slot,
+			cost,
+			skill_bonus
+		FROM public.items
+		WHERE id = $1
+	`
+
+	err := r.db.QueryRowContext(ctx, q, itemId).Scan(
+		&item.Id,
+		&item.Name,
+		&item.Slot,
+		&item.Cost,
+		&item.Skill_bonus,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("item with id %d not found", itemId)
+		}
+		return nil, fmt.Errorf("could not retrieve item: %w", err)
+	}
+
+	return item, nil
+}
+
+func (r *Repository) AddItemToPlayerTx(ctx context.Context, tx *sql.Tx, userId, itemId int) error {
+	const q = `
+		INSERT INTO public.player_items (player_id, item_id)
+		VALUES ($1, $2)
+	`
+
+	_, err := tx.ExecContext(ctx, q, userId, itemId)
+	if err != nil {
+		return fmt.Errorf("could not add item with id %d to player with user id %d: %w", itemId, userId, err)
+	}
+	return nil
+}

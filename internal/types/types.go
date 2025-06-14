@@ -56,6 +56,7 @@ type UserRepository interface {
 type PlayerRepository interface {
 	GetPlayerByUserId(id int) (*Player, error)
 	CreatePlayerTx(ctx context.Context, tx *sql.Tx, payload CreatePlayerPayload) error
+	UpdatePlayerMoneyTx(ctx context.Context, tx *sql.Tx, userId int, amount float64) error
 }
 
 type TrainingRepository interface {
@@ -64,4 +65,6 @@ type TrainingRepository interface {
 
 type ShopRepository interface {
 	GetItemsList(ctx context.Context) ([]*Item, error)
+	GetItemById(ctx context.Context, itemId int) (*Item, error)
+	AddItemToPlayerTx(ctx context.Context, tx *sql.Tx, userId, itemId int) error
 }

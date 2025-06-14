@@ -45,3 +45,11 @@ func (r *Repository) CreatePlayerTx(ctx context.Context, tx *sql.Tx, payload typ
 	}
 	return nil
 }
+
+func (r *Repository) UpdatePlayerMoneyTx(ctx context.Context, tx *sql.Tx, userId int, amount float64) error {
+	_, err := tx.ExecContext(ctx, "UPDATE public.players SET money = money + $1 WHERE user_id = $2", amount, userId)
+	if err != nil {
+		return fmt.Errorf("failed to update player money for user id %d: %w", userId, err)
+	}
+	return nil
+}
